@@ -14,3 +14,9 @@
     "express": "^4.21.2"
   }
 }
+{
+  "devDependencies": {
+    "jest-html-reporter": "^3.7.0",
+    "puppeteer": "^19.0.0"
+  }
+}
