@@ -1,14 +1,11 @@
 name: CI/CD for Node.js To-Do List on Docker (Ubuntu)
-
 on:
   push:
     branches:
       - node
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
       # Étape 1 : Cloner le dépôt
       - name: Checkout code
@@ -20,35 +17,110 @@ jobs:
         with:
           node-version: 16
 
-      # Étape 3 : Installer les dépendances
+      # Étape 3 : Installer les dépendances et outils de rapport
       - name: Install dependencies
         run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser
           npm install
+          npm install -g jest jest-html-reporter puppeteer
 
-      # Étape 4 : Exécuter les tests d'intégration
+      # Étape 4 : Créer le dossier pour les rapports
+      - name: Create reports directory
+        run: mkdir -p reports
+
+      # Étape 5 : Exécuter les tests d'intégration avec génération de rapport
       - name: Run integration tests
-        run: npm test -- tests/integration.test.js
+        run: |
+          JEST_HTML_REPORTER_OUTPUT_PATH=reports/integration_tests.html \
+          JEST_HTML_REPORTER_PAGE_TITLE="Integration Tests Report" \
+          jest tests/integration.test.js --reporters=default --reporters=jest-html-reporter
+          node -e "
+          const puppeteer = require('puppeteer');
+          (async () => {
+            const browser = await puppeteer.launch({
+              headless: 'new',
+              args: ['--no-sandbox']
+            });
+            const page = await browser.newPage();
+            await page.goto('file://${PWD}/reports/integration_tests.html');
+            await page.pdf({ 
+              path: 'reports/integration_tests.pdf',
+              format: 'A4',
+              margin: { top: '20px', right: '20px', bottom: '20px', left: '20px' }
+            });
+            await browser.close();
+          })();"
 
-      # Étape 5 : Exécuter les tests de fonctionnalité
+      # Étape 6 : Exécuter les tests de fonctionnalité avec génération de rapport
       - name: Run functionality tests
-        run: npm test -- tests/functionality.test.js
+        run: |
+          JEST_HTML_REPORTER_OUTPUT_PATH=reports/functionality_tests.html \
+          JEST_HTML_REPORTER_PAGE_TITLE="Functionality Tests Report" \
+          jest tests/functionality.test.js --reporters=default --reporters=jest-html-reporter
+          node -e "
+          const puppeteer = require('puppeteer');
+          (async () => {
+            const browser = await puppeteer.launch({
+              headless: 'new',
+              args: ['--no-sandbox']
+            });
+            const page = await browser.newPage();
+            await page.goto('file://${PWD}/reports/functionality_tests.html');
+            await page.pdf({ 
+              path: 'reports/functionality_tests.pdf',
+              format: 'A4',
+              margin: { top: '20px', right: '20px', bottom: '20px', left: '20px' }
+            });
+            await browser.close();
+          })();"
 
-      # Étape 6 : Connexion à Docker Hub
+      # Étape 7 : Générer un rapport de couverture
+      - name: Generate coverage report
+        run: |
+          jest --coverage
+          node -e "
+          const puppeteer = require('puppeteer');
+          (async () => {
+            const browser = await puppeteer.launch({
+              headless: 'new',
+              args: ['--no-sandbox']
+            });
+            const page = await browser.newPage();
+            await page.goto('file://${PWD}/coverage/lcov-report/index.html');
+            await page.pdf({ 
+              path: 'reports/coverage_report.pdf',
+              format: 'A4',
+              margin: { top: '20px', right: '20px', bottom: '20px', left: '20px' }
+            });
+            await browser.close();
+          })();"
+
+      # Étape 8 : Upload les rapports comme artifacts
+      - name: Upload test reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports
+          path: |
+            reports/
+            coverage/
+
+      # Étape 9 : Connexion à Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Étape 7 : Construire l'image Docker
+      # Étape 10 : Construire l'image Docker
       - name: Build Docker image
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/node-todolist:latest .
 
-      # Étape 8 : Pousser l'image Docker sur Docker Hub
+      # Étape 11 : Pousser l'image Docker sur Docker Hub
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/node-todolist:latest
 
-      # Étape 9 : Déployer sur Ubuntu Server via SSH
+      # Étape 12 : Déployer sur Ubuntu Server via SSH
       - name: Deploy to Ubuntu Server
         run: |
           ssh -o StrictHostKeyChecking=no user@<IP-MACHINE-UBUNTU> << 'EOF'
