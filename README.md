@@ -11,7 +11,9 @@ Pour le projet nous avons 02 applications dont nous voulons automatiser les tach
  # LES DIFFERENTES ETAPES DU PROJETS 
 
    # Etape 1: Definition des objectifs et choix des outils 
-     Pour assurer un déploiement automatisé et fiable de nos applications, nous avons mis en place un pipeline CI/CD en utilisant GitHub Actions pour l'intégration continue et Docker pour le déploiement sur un serveur Ubuntu.
+     Pour assurer un déploiement automatisé et fiable de nos applications, nous avons mis en place
+     un pipeline CI/CD en utilisant GitHub Actions pour l'intégration continue et Docker pour le déploiement sur un serveur 
+     Ubuntu.
    # Etape 2: DEVELOPPER LES APPLICATIONS ET PUSH
    
   * Nous avons developpe nos appli sur Vs code ensuite nous avons creer un depot Git dans lequel nous avons pousser (push) nos differents code sources. 
