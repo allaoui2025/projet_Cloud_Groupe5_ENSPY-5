@@ -2,7 +2,7 @@ name: Tests for Flask API with Reports
 on:
   push:
     branches:
-      - flask
+      - main
 jobs:
   test:
     runs-on: ubuntu-latest
