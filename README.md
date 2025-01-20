@@ -19,3 +19,19 @@ Pour le projet nous avons 02 applications dont nous voulons automatiser les tach
 
     # etape 2. Configuration des fichiers Docker
   Pour chaque application, nous avons créé un fichier Dockerfile permettant de définir l'environnement d'exécution de l'application.
+
+  # Etape 4. Configuration de GitHub Actions
+
+  Nous avons mis en place des workflows CI/CD dans GitHub Actions pour automatiser les étapes suivantes :
+
+    -Clonage du dépôt.
+
+    -Installation des dépendances.
+
+    -Exécution des tests automatisés (unitaires et d'intégration).
+
+    -Génération d'un rapport de tests en PDF.
+
+    -Construction et publication des images Docker sur Docker Hub.
+
+    -Déploiement automatique sur un serveur Ubuntu via SSH.
