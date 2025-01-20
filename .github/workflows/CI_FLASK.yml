@@ -1,0 +1,81 @@
+name: Tests for Flask API with Reports
+on:
+  push:
+    branches:
+      - flask
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # Étape 1 : Cloner le dépôt
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Étape 2 : Configurer Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      # Étape 3 : Installer les dépendances et outils de rapport
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wkhtmltopdf
+          pip install -r requirements.txt
+          pip install pytest pytest-html coverage weasyprint
+
+      # Étape 4 : Créer le dossier pour les rapports
+      - name: Create reports directory
+        run: mkdir -p reports
+
+      # Étape 5 : Exécuter les tests d'intégration avec génération de rapport
+      - name: Run integration tests
+        run: |
+          python -m unittest discover -s tests -p "test_integration.py" > reports/integration_tests.txt
+          python -c "
+          from weasyprint import HTML
+          import datetime
+          html_content = f'''
+          <html>
+            <head><title>Integration Tests Report</title></head>
+            <body>
+              <h1>Integration Tests Report</h1>
+              <p>Date: {datetime.datetime.now()}</p>
+              <pre>{open('reports/integration_tests.txt').read()}</pre>
+            </body>
+          </html>
+          '''
+          with open('reports/integration_tests.html', 'w') as f:
+            f.write(html_content)
+          HTML(string=html_content).write_pdf('reports/integration_tests.pdf')
+          "
+
+      # Étape 6 : Exécuter les tests de fonctionnalité avec génération de rapport
+      - name: Run functionality tests
+        run: |
+          python -m unittest discover -s tests -p "test_functionality.py" > reports/functionality_tests.txt
+          python -c "
+          from weasyprint import HTML
+          import datetime
+          html_content = f'''
+          <html>
+            <head><title>Functionality Tests Report</title></head>
+            <body>
+              <h1>Functionality Tests Report</h1>
+              <p>Date: {datetime.datetime.now()}</p>
+              <pre>{open('reports/functionality_tests.txt').read()}</pre>
+            </body>
+          </html>
+          '''
+          with open('reports/functionality_tests.html', 'w') as f:
+            f.write(html_content)
+          HTML(string=html_content).write_pdf('reports/functionality_tests.pdf')
+          "
+
+      # Étape 7 : Upload les rapports comme artifacts
+      - name: Upload test reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports
+          path: reports/
