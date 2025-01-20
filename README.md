@@ -17,10 +17,10 @@ Pour le projet nous avons 02 applications dont nous voulons automatiser les tach
        -main, pour l'application Flask.
        -app2, pour l'application Node.js.
 
-    # etape 2. Configuration des fichiers Docker
+    # Etape 2. Configuration des fichiers Docker
   Pour chaque application, nous avons créé un fichier Dockerfile permettant de définir l'environnement d'exécution de l'application.
 
-  # Etape 4. Configuration de GitHub Actions
+   # Etape 4. Configuration de GitHub Actions
 
   Nous avons mis en place des workflows CI/CD dans GitHub Actions pour automatiser les étapes suivantes :
 
@@ -35,3 +35,22 @@ Pour le projet nous avons 02 applications dont nous voulons automatiser les tach
     -Construction et publication des images Docker sur Docker Hub.
 
     -Déploiement automatique sur un serveur Ubuntu via SSH.
+
+  # Etape 5. Implémentation des tests automatisés
+
+Nous avons intégré des tests unitaires et d'intégration pour chaque application.
+
+Pour Flask (Python) : Tests unitaires avec unittest.
+ Génération de rapports HTML et conversion en PDF via wkhtmltopdf.
+
+Pour Node.js :
+Tests unitaires et d'intégration avec Jest.
+Génération de rapports HTML et conversion en PDF via Puppeteer.
+
+
+# ETAPE 6. Déploiement sur Ubuntu via Docker
+
+Sur le serveur Ubuntu, nous avons procédé aux actions suivantes :
+
+Connexion à Docker Hub pour tirer les images construites.
+Déploiement et exécution des conteneurs avec des commandes
