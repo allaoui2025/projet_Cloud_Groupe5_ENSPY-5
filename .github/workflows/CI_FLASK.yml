@@ -64,7 +64,7 @@ jobs:
             <body>
               <h1>Performance Tests Report</h1>
               <p>Date: {datetime.datetime.now()}</p>
-              <pre>{open('reports/peformance_tests.txt').read()}</pre>
+              <pre>{open('reports/performance_tests.txt').read()}</pre>
             </body>
           </html>
           '''
