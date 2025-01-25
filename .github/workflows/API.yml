@@ -2,7 +2,7 @@ name: CI/CD for Flask API on Docker (Ubuntu)
 on:
   push:
     branches:
-      - flask
+      - main
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -29,48 +29,48 @@ jobs:
       - name: Create reports directory
         run: mkdir -p reports
 
-      # Étape 5 : Exécuter les tests d'intégration avec génération de rapport
-      - name: Run integration tests
+      # Étape 5 : Exécuter les tests unitaires avec génération de rapport
+      - name: Run Unit tests
         run: |
-          python -m unittest discover -s tests -p "test_integration.py" > reports/integration_tests.txt
+          python -m unittest discover -s tests -p "test_unitaire.py" > reports/Unit_tests.txt
           python -c "
           from weasyprint import HTML
           import datetime
           html_content = f'''
           <html>
-            <head><title>Integration Tests Report</title></head>
+            <head><title>Units Tests Report</title></head>
             <body>
-              <h1>Integration Tests Report</h1>
+              <h1>Units Tests Reports</h1>
               <p>Date: {datetime.datetime.now()}</p>
-              <pre>{open('reports/integration_tests.txt').read()}</pre>
+              <pre>{open('reports/Unit_tests.txt').read()}</pre>
             </body>
           </html>
           '''
-          with open('reports/integration_tests.html', 'w') as f:
+          with open('reports/Unit_tests.html', 'w') as f:
             f.write(html_content)
-          HTML(string=html_content).write_pdf('reports/integration_tests.pdf')
+          HTML(string=html_content).write_pdf('reports/Unit_tests.pdf')
           "
 
-      # Étape 6 : Exécuter les tests de fonctionnalité avec génération de rapport
-      - name: Run functionality tests
+      # Étape 6 : Exécuter les tests de performance avec génération de rapport
+      - name: Run performance tests
         run: |
-          python -m unittest discover -s tests -p "test_functionality.py" > reports/functionality_tests.txt
+          python -m unittest discover -s tests -p "test_performance.py" > reports/performance_tests.txt
           python -c "
           from weasyprint import HTML
           import datetime
           html_content = f'''
           <html>
-            <head><title>Functionality Tests Report</title></head>
+            <head><title>Performance Tests Report</title></head>
             <body>
-              <h1>Functionality Tests Report</h1>
+              <h1>Performance Tests Report</h1>
               <p>Date: {datetime.datetime.now()}</p>
-              <pre>{open('reports/functionality_tests.txt').read()}</pre>
+              <pre>{open('reports/performance_tests.txt').read()}</pre>
             </body>
           </html>
           '''
-          with open('reports/functionality_tests.html', 'w') as f:
+          with open('reports/performance_tests.html', 'w') as f:
             f.write(html_content)
-          HTML(string=html_content).write_pdf('reports/functionality_tests.pdf')
+          HTML(string=html_content).write_pdf('reports/performance_tests.pdf')
           "
 
       # Étape 7 : Upload les rapports comme artifacts
@@ -87,21 +87,18 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Étape 9 : Construire l'image Docker
-      - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/flask-api:latest .
-
-      # Étape 10 : Pousser l'image Docker sur Docker Hub
-      - name: Push Docker image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/flask-api:latest
-
-      # Étape 11 : Déployer sur Ubuntu Server via SSH
-      - name: Deploy to Ubuntu Server
+      # Étape 9 : Déployer sur AWS EC2 via SSH
+      - name: Deploy to AWS EC2
         run: |
-          ssh -o StrictHostKeyChecking=no user@<IP-MACHINE-UBUNTU> << 'EOF'
-            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-            docker pull ${{ secrets.DOCKER_USERNAME }}/flask-api:latest
-            docker stop flask-api || true
-            docker rm flask-api || true
-            docker run -d -p 5000:5000 --name flask-api ${{ secrets.DOCKER_USERNAME }}/flask-api:latest
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/aws_key.pem
+          chmod 600 ~/.ssh/aws_key.pem
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/aws_key.pem ubuntu@${{ secrets.AWS_SERVER_IP }} << 'EOF'
+            cd /home/ubuntu
+            if [ ! -d "flask-api" ]; then git clone https://github.com/${{ github.repository }}.git flask-api; fi
+            cd flask-api
+            git pull origin flask
+            sudo pip install -r requirements.txt
+            sudo pkill gunicorn || true
+            sudo gunicorn --bind 0.0.0.0:5000 app:app --daemon
           EOF
