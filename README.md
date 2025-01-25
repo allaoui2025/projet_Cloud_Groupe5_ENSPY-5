@@ -42,7 +42,7 @@ Pour le projet nous avons 02 applications dont nous voulons automatiser les tach
 
   # Etape 5. Implémentation des tests automatisés
 
-Nous avons intégré des tests unitaires et d'intégration pour chaque application.
+Nous avons intégré des tests unitaires et de performance pour chaque application.
 
 Pour Flask (Python) : Tests unitaires avec unittest.
  Génération de rapports HTML et conversion en PDF via wkhtmltopdf.
@@ -52,9 +52,6 @@ Tests unitaires et d'intégration avec Jest.
 Génération de rapports HTML et conversion en PDF via Puppeteer.
 
 
-# ETAPE 6. Déploiement sur Ubuntu via Docker
+# ETAPE 6. Déploiement avec AWS EC2
 
-Sur le serveur Ubuntu, nous avons procédé aux actions suivantes :
 
-Connexion à Docker Hub pour tirer les images construites.
-Déploiement et exécution des conteneurs avec des commandes
