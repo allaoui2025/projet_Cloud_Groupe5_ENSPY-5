@@ -36,9 +36,8 @@ Pour le projet nous avons 02 applications dont nous voulons automatiser les tach
 
     -Génération d'un rapport de tests en PDF.
 
-    -Construction et publication des images Docker sur Docker Hub.
 
-    -Déploiement automatique sur un serveur Ubuntu via SSH.
+    -Déploiement automatique sur AWS EC2 via SSH.
 
   # Etape 5. Implémentation des tests automatisés
 
@@ -48,7 +47,7 @@ Pour Flask (Python) : Tests unitaires avec unittest.
  Génération de rapports HTML et conversion en PDF via wkhtmltopdf.
 
 Pour Node.js :
-Tests unitaires et d'intégration avec Jest.
+Tests unitaires  avec Jest.
 Génération de rapports HTML et conversion en PDF via Puppeteer.
 
 
