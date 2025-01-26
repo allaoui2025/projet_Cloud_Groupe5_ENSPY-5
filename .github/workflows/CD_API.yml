@@ -3,7 +3,7 @@ name: Test Deployment for Flask API on Docker (Ubuntu)
 on:
   push:
     branches:
-      - flask
+      - flas
 
 jobs:
   deploy:
