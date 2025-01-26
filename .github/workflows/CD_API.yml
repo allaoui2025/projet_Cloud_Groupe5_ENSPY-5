@@ -21,7 +21,7 @@ jobs:
           chmod 600 ~/.ssh/aws_key.pem
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/aws_key.pem ubuntu@${{ secrets.AWS_SERVER_IP }} << 'EOF'
             cd "/CLONE PROJECT/projet_Cloud_Groupe5_ENSPY-5"
-            git pull origin flask
+            git pull origin main
             source venv/bin/activate
             pip install -r requirements.txt
             pkill gunicorn || true
