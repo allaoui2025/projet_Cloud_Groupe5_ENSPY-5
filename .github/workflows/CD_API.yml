@@ -1,0 +1,29 @@
+name: Test Deployment for Flask API on Docker (Ubuntu)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Étape 1 : Cloner le dépôt
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Étape de Déploiement
+      - name: Deploy to AWS EC2
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/aws_key.pem
+          chmod 600 ~/.ssh/aws_key.pem
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/aws_key.pem ubuntu@${{ secrets.AWS_SERVER_IP }} << 'EOF'
+            cd "/CLONE PROJECT/projet_Cloud_Groupe5_ENSPY-5"
+            git pull origin flask
+            source venv/bin/activate
+            pip install -r requirements.txt
+            pkill gunicorn || true
+            nohup gunicorn --bind 0.0.0.0:5000 app:app &
+          EOF
