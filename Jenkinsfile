@@ -28,3 +28,15 @@ stage('Trivy Scan') {
         }
     }
 }
+stage('Push to DockerHub') {
+    steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+            script {
+                def imageName = "farid2025/projetcloud-backend:latest"
+                sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin"
+                sh "docker push ${imageName}"
+            }
+        }
+    }
+}
+
