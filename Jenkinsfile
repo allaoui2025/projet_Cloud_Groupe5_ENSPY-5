@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Maven Build & Test') {
             steps {
-                dir('backend') {
+                dir('projetCloud/backend') {
                     sh 'mvn clean install'
                 }
             }
@@ -12,7 +12,7 @@ pipeline {
 
         stage('Semgrep SAST') {
             steps {
-                dir('backend') {
+                dir('projetCloud/backend') {
                     sh 'semgrep scan --config auto . || true'
                 }
             }
@@ -20,7 +20,7 @@ pipeline {
 
         stage('Trivy Scan') {
             steps {
-                dir('backend') {
+                dir('projetCloud/backend') {
                     sh 'docker build -t farid2025/projetcloud-backend:latest .'
                     sh 'trivy image --severity CRITICAL,HIGH farid2025/projetcloud-backend:latest || true'
                 }
@@ -29,7 +29,7 @@ pipeline {
 
         stage('Push to DockerHub') {
             steps {
-                dir('backend') {
+                dir('projetCloud/backend') {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                         sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
                         sh 'docker push farid2025/projetcloud-backend:latest'
