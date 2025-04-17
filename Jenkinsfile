@@ -1,14 +1,14 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Maven Build & Test') {
-            steps {
-                dir('projetCloud') {
-                    sh 'mvn clean install'
-                }
-            }
+    stage('Maven Build & Test') {
+    steps {
+        dir('backend') {
+            sh 'mvn clean install'
         }
+    }
+}
+
 
         stage('Semgrep SAST') {
             steps {
